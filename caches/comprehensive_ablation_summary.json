@@ -1,0 +1,63 @@
+{
+  "component_ablation": {
+    "protonet": 42.000001668930054,
+    "tip_adapter": 61.000001430511475,
+    "laplacianshot": 33.33333432674408,
+    "tim_pp": 68.16666722297668,
+    "static_lctim": 70.83333730697632,
+    "static_lctim_sar": 73.83333444595337,
+    "dynamic_k_only": 73.66666793823242,
+    "rl_hydrofm_optical": 73.66666793823242,
+    "rl_hydrofm_sar": 74.50000047683716
+  },
+  "action_space_ablation": {
+    "Fixed k=1": 57.833331823349,
+    "Fixed k=3": 68.83333325386047,
+    "Fixed k=5": 69.83333230018616,
+    "Fixed k=10": 73.83333444595337,
+    "Fixed k=16": 72.83333539962769,
+    "Dynamic {1, 3, 5}": 69.9999988079071,
+    "Dynamic {1, 3, 5, 8, 12, 16} (Ours)": 73.16666841506958,
+    "Dynamic {1, 5, 10, 20}": 73.50000143051147
+  },
+  "reward_ablation": {
+    "Supervised R_val Only": 73.00000190734863,
+    "R_val + Mutual Info (I_alpha)": 60.333335399627686,
+    "R_val + Neighborhood Consensus": 68.83333325386047,
+    "Full Multi-Objective Reward (Ours)": 72.66666889190674
+  },
+  "adm_convergence_ablation": {
+    "5": {
+      "accuracy": 72.1666693687439,
+      "latency_ms": 18.25881004333496
+    },
+    "10": {
+      "accuracy": 73.50000143051147,
+      "latency_ms": 24.149179458618164
+    },
+    "25": {
+      "accuracy": 73.83333444595337,
+      "latency_ms": 57.915687561035156
+    },
+    "50": {
+      "accuracy": 73.50000143051147,
+      "latency_ms": 103.10816764831543
+    },
+    "100": {
+      "accuracy": 73.83333444595337,
+      "latency_ms": 182.1284294128418
+    },
+    "150": {
+      "accuracy": 73.50000143051147,
+      "latency_ms": 267.64798164367676
+    },
+    "200": {
+      "accuracy": 73.33333492279053,
+      "latency_ms": 368.34263801574707
+    },
+    "300": {
+      "accuracy": 73.33333492279053,
+      "latency_ms": 541.0976409912109
+    }
+  }
+}
