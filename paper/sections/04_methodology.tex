@@ -131,7 +131,6 @@ Exponentiating both sides and normalizing over classes $k \in \{1,\dots,K\}$ giv
 \subsection{Algorithmic Complexity and Parallel Execution Guarantees}
 The computational complexity of Algorithm~\ref{alg:rl_hydrofm} scales linearly with the number of query samples $N_q$. Specifically, state extraction requires $\mathcal{O}(N_q d_1 + N_q \kappa_{\text{cand}})$, policy forward evaluation requires $\mathcal{O}(N_q d_{\text{hid}})$, and the vectorized ADM solver executes in $\mathcal{O}(T N_q K + T N_q \kappa_{\max})$ FLOPs. Because the entire inference routine consists of dense matrix-tensor multiplications implemented in native CUDA kernels, \rllctim{} avoids Python interpreter overhead and achieves deterministic execution latency on embedded tensor cores.
 
-
 \subsubsection{PPO Policy Optimization and Value Function Mechanics}
 During meta-training, the Actor-Critic policy network parameters $\theta$ and critic parameters $\phi$ are jointly updated via the Proximal Policy Optimization (PPO) clipped surrogate loss:
 \begin{equation}

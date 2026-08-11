@@ -11,16 +11,15 @@ Hydrological features often exhibit fractal, non-Euclidean geometries, such as b
 \subsection{Edge Computing \& Low-Power Deployment}
 With a memory footprint under $1.86$\,GB and zero-backpropagation architecture, \rllctim{} is deployable on embedded edge platforms (e.g., NVIDIA Jetson AGX Orin) onboard satellites and tactical airborne surveillance drones for autonomous in-orbit flood detection.
 
-\subsection{Zero-Shot Cross-Basin Generalizability}
-Because state representation $\mathbf{s}_i$ relies on normalized entropy, probability margins, and feature cosine geometries rather than absolute pixel radiometry, the trained Actor-Critic policy generalizes directly across diverse geographic basins (e.g., from European river basins to tropical Asian deltas) without fine-tuning.
-
-\subsection{Environmental Justice and Transboundary Water Diplomacy}
-Accurate and impartial spaceborne water monitoring is critical for mitigating conflicts over shared water resources in transboundary river basins (e.g., the Nile, Mekong, and Indus river systems). By providing an open-source, reproducible, and verifiable methodology that operates without access to proprietary regional training labels, \rllctim{} democratizes advanced geospatial analytics for developing countries and international river basin authorities.
-
-
 \subsection{Coupled Hydrodynamic Modeling and Flood Routing Integration}
 In operational flood management, satellite-derived surface inundation extents serve as direct boundary conditions for 2D hydrodynamic hydraulic simulators (e.g., LISFLOOD-FP, HEC-RAS 2D, and Telemac-2D). These models solve the 2D Saint-Venant shallow water equations:
 \begin{equation}
     \frac{\partial h}{\partial t} + \frac{\partial (uh)}{\partial x} + \frac{\partial (vh)}{\partial y} = q_{\text{source}},
 \end{equation}
 where $h$ is water depth, $u, v$ are depth-averaged velocity components in Cartesian coordinates, and $q_{\text{source}}$ represents lateral inflow or precipitation excess. Traditional binary thresholding introduces substantial geometric boundary artifacts, such as artificial levee breaks or disjoint channel disconnects, which destabilize numerical solvers. By adaptively pruning cross-boundary edges via $\kappa_i=1$, \rllctim{} generates topologically consistent inundation vectors that directly conform to natural terrain contours and digital elevation models (DEMs). This high boundary fidelity enables direct assimilation of satellite predictions into predictive hydraulic routing models without manual post-processing.
+
+\subsection{Zero-Shot Cross-Basin Generalizability}
+Because state representation $\mathbf{s}_i$ relies on normalized entropy, probability margins, and feature cosine geometries rather than absolute pixel radiometry, the trained Actor-Critic policy generalizes directly across diverse geographic basins (e.g., from European river basins to tropical Asian deltas) without fine-tuning.
+
+\subsection{Environmental Justice and Transboundary Water Diplomacy}
+Accurate and impartial spaceborne water monitoring is critical for mitigating conflicts over shared water resources in transboundary river basins (e.g., the Nile, Mekong, and Indus river systems). By providing an open-source, reproducible, and verifiable methodology that operates without access to proprietary regional training labels, \rllctim{} democratizes advanced geospatial analytics for developing countries and international river basin authorities.

@@ -32,7 +32,23 @@ where $K_d(\lambda) = a(\lambda) + b_b(\lambda)$ represents the diffuse attenuat
 \begin{equation}
     r_{rs}(\lambda) = g_1 \frac{b_b(\lambda)}{a(\lambda) + b_b(\lambda)} + g_2 \left(\frac{b_b(\lambda)}{a(\lambda) + b_b(\lambda)}\right)^2,
 \end{equation}
-where $g_1 \approx 0.0949$ and $g_2 \approx 0.0794$ are geometric expansion coefficients. In optical imagery, shallow sediment-laden rivers and turbid reservoirs produce elevated volume scattering in visible red bands (665\,nm), often triggering false negatives under rigid index thresholding. Crucially, optical sensors suffer severe operational limitations: they require daylight and are completely obscured by atmospheric cloud cover, cloud shadows, and smoke~\cite{pekel2016high}.
+where $g_1 \approx 0.0949$ and $g_2 \approx 0.0794$ are geometric expansion coefficients. 
+
+\subsubsection{Shallow-Water Bathymetry and Radiative Transfer Mechanics}
+In optically shallow inland waters, braided river sandbars, and littoral wetlands, subsurface reflectance is jointly governed by water column volume scattering and benthic substrate albedo $\rho_b(\lambda)$. The exact semi-analytical shallow-water radiative transfer equation is formulated as:
+\begin{equation}
+\begin{split}
+    r_{rs}(\lambda) = r_{rs}^{\text{dp}}(\lambda) \Big(1 - \exp\big(-[K_d(\lambda) + D_u K_u^C(\lambda)] z_b\big)\Big) \\
+    + \frac{\rho_b(\lambda)}{\pi} \exp\big(-[K_d(\lambda) + D_u K_u^B(\lambda)] z_b\big),
+\end{split}
+    \label{eq:shallow_water}
+\end{equation}
+where $r_{rs}^{\text{dp}}(\lambda)$ is the asymptotic optically deep water reflectance, $z_b$ is the bathymetric water depth, $D_u \approx 1.03(1 + 2.4\frac{b_b}{a+b_b})^{0.5}$ is the optical path elongation factor, and $K_u^C(\lambda), K_u^B(\lambda)$ are the upwelling attenuation coefficients for water column and bottom reflectance, respectively. Above the water surface, the water-leaving remote sensing reflectance $R_{rs}(\lambda)$ observed by the satellite is related to subsurface $r_{rs}(\lambda)$ across the refractive air-water interface via:
+\begin{equation}
+    R_{rs}(\lambda) = \frac{\zeta \, r_{rs}(\lambda)}{1 - \Gamma \, r_{rs}(\lambda)},
+    \label{eq:air_water_interface}
+\end{equation}
+where $\zeta \approx 0.52$ accounts for the internal refractive index mismatch ($n_w \approx 1.334$) and Fresnel water-to-air transmittance, and $\Gamma \approx 1.56$ represents the internal reflection factor. When water depth $z_b < 1.5$\,m, bright sandy substrates elevate NIR reflectance, causing static spectral indices to misclassify shallow waters as dry soil. Concurrently, suspended particulate matter absorbs blue light and scatters red-edge wavelengths, distorting optical index ratios.
 
 \subsubsection{Microwave Synthetic Aperture Radar (SAR) Scattering Mechanics}
 Active microwave radar systems, such as Sentinel-1 C-band (5.405\,GHz, $\lambda \approx 5.6$\,cm), transmit coherent microwave pulses and record backscatter intensity ($\sigma^0_{\text{VV}}, \sigma^0_{\text{VH}}$)~\cite{clement2018multi,boudjit2021sen12flood}. Because microwave radiation penetrates clouds, rain, and smoke day and night, SAR is the premier operational tool for flood surveillance during heavy storms. 
@@ -48,7 +64,11 @@ The dielectric permittivity of liquid water at C-band frequencies is exceptional
 However, SAR imagery is corrupted by granular speckle noise, wind-induced capillary waves, and radar shadow/layover in mountainous terrain.
 
 \subsubsection{Radar Altimetry and Wide-Swath Interferometry}
-Specialized missions, such as the Surface Water and Ocean Topography (SWOT) satellite, employ Ka-band Radar Interferometers (KaRIn) with a $B=10$\,m baseline to measure 2D surface water elevations $h(x,y)$, lake storage volumes, and river slopes via interferometric phase difference $\Delta \Phi = \frac{2\pi B}{\lambda} \sin(\theta - \alpha)$ with sub-decimeter accuracy~\cite{pekel2016high}. The integration of optical, SAR, and altimetric observations provides unprecedented capabilities for hydrological surveillance across diverse geographic basins.
+Specialized missions, such as the Surface Water and Ocean Topography (SWOT) satellite, employ Ka-band Radar Interferometers (KaRIn) with a $B=10$\,m baseline to measure 2D surface water elevations $h(x,y)$, lake storage volumes, and river slopes via interferometric phase difference:
+\begin{equation}
+    \Delta \Phi = \frac{2\pi B}{\lambda} \sin(\theta - \alpha), \qquad h(x,y) = H - \rho \cos\theta,
+\end{equation}
+where $\theta$ is the incidence angle, $\alpha$ is the baseline tilt angle, $H$ is the satellite orbital altitude, and $\rho$ is the slant range distance. The integration of optical, SAR, and altimetric observations provides unprecedented capabilities for hydrological surveillance across diverse geographic basins.
 
 \subsection{The Emergence of Geospatial Foundation Models}
 To harness these massive multi-sensor archives without requiring millions of task-specific training labels, Earth observation artificial intelligence has recently transitioned toward \emph{Geospatial Foundation Models} (GFMs)~\cite{zhang2024rs5m,simeoni2025dinov3,wang2023remoteclip}. Pre-trained on vast archives of satellite imagery using self-supervised learning (SSL) or contrastive vision-language pre-training (VLP)~\cite{radford2021learning}, foundation models learn rich representations of spatial, spectral, and semantic priors~\cite{congo2023satmae,jakubik2023prithvi,reed2023scalemae,maninis2024seco}. Foundation models such as GeoRSCLIP~\cite{zhang2024rs5m}, RemoteCLIP~\cite{wang2023remoteclip}, SkyCLIP~\cite{mai2023skyclip}, and DINOv3~\cite{simeoni2025dinov3} demonstrate remarkable zero-shot transfer capabilities by aligning satellite imagery and descriptive textual prompts in a joint embedding space.
@@ -92,11 +112,3 @@ The primary contributions of this work are summarized as follows:
 Effective water governance in the era of planetary climate change necessitates transitioning from fragmented, retrospective hydrological reporting toward automated, forward-looking Earth observation analytics. The operational deployment of \rllctim{} provides water resource managers, disaster response authorities, and transboundary river basin commissions with an automated, zero-shot to few-shot analytical capability. By enabling rapid, reliable delineation of standing water bodies, ephemeral flood channels, and vulnerable agricultural zones without requiring weeks of localized field surveys, this framework directly bridges the critical gap between raw petabyte-scale satellite data downlinks and actionable geospatial intelligence.
 
 The remainder of this article is structured as follows. Section~\ref{sec:related} reviews related work. Section~\ref{sec:formulation} details the problem setup and theoretical limitations of static graphs. Section~\ref{sec:method} presents the mathematical formulation of \rllctim{} and the closed-form ADM derivations. Section~\ref{sec:setup} details experimental datasets, baselines, and protocols. Section~\ref{sec:experiments} presents quantitative benchmarking and comparative analysis. Section~\ref{sec:ablations} provides in-depth ablation studies and computational efficiency profiles. Section~\ref{sec:discussion} discusses hydrological implications and operational deployment. Section~\ref{sec:conclusion} concludes the paper.
-
-
-\subsubsection{Bathymetric Scattering and Suspended Solids Spectral Interference}
-In shallow coastal estuaries, river deltas, and sandbars, optical reflectance is strongly modulated by benthic substrate reflectance $\rho_b(\lambda)$ according to the shallow-water radiative transfer formulation:
-\begin{equation}
-    r_{rs}(\lambda) = r_{rs}^{\infty}(\lambda) \Big(1 - \exp\big(-(K_d(\lambda) + D_u K_u(\lambda))z_b\big)\Big) + \frac{\rho_b(\lambda)}{\pi} \exp\big(-(K_d(\lambda) + D_u K_u(\lambda))z_b\big),
-\end{equation}
-where $r_{rs}^{\infty}(\lambda)$ is the reflectance of an optically deep water column, $z_b$ is water depth, and $D_u$ is an upward irradiance optical path factor. When water depth $z_b < 1.5$\,m, bright sandy bottoms elevate NIR reflectance, causing static spectral indices to misclassify shallow waters as dry soil. Concurrently, high concentrations of suspended particulate matter ($>50$\,mg/L) shift the reflectance peak toward red wavelengths ($665\text{--}705$\,nm), mimicking sparse vegetation signatures. \rllctim{} overcomes these optical anomalies by dynamically sensing multi-spectral band discordance and querying microwave radar backscatter, which responds purely to the dielectric constant and surface roughness rather than optical sediment scattering.
