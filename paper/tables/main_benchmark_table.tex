@@ -1,0 +1,66 @@
+% Main Few-Shot Water Resources Benchmark Results (11 Methods)
+\begin{table*}[t]
+\centering
+\caption{Comprehensive Few-Shot Classification Accuracy (\%) across Four Earth Observation Water Resources Benchmarks under $n \in \{1, 2, 4, 8, 16\}$ Shots (Averaged over 5 Independent Random Seeds). \textbf{Bold} indicates the highest accuracy; \underline{underline} denotes the second-highest.}
+\label{tab:main_benchmark_results}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Benchmark Dataset} & \textbf{Method / Adaptation Paradigm} & \textbf{1-Shot} & \textbf{2-Shot} & \textbf{4-Shot} & \textbf{8-Shot} & \textbf{16-Shot} \\
+\midrule
+\multirow{11}{*}{\textbf{EUROSAT WATER}}
+ & Zero-Shot Baseline & 55.49 & 55.49 & 55.49 & 55.49 & 55.49 \\
+ & ProtoNet & 31.17 & 33.86 & 40.58 & 49.57 & 58.62 \\
+ & LP++ (Inductive) & 48.13 & 54.30 & 60.10 & 63.20 & 64.51 \\
+ & Tip-Adapter & 55.49 & 55.49 & 55.49 & 55.52 & 55.52 \\
+ & LaplacianShot & 20.51 & 21.60 & 21.12 & 20.06 & 23.71 \\
+ & TransCLIP & \textbf{82.37} & \textbf{82.37} & \textbf{82.37} & \textbf{82.37} & \textbf{82.37} \\
+ & TIM++ & 64.22 & 64.42 & 64.80 & 66.08 & 67.71 \\
+ & LC-TIM (Static k=5) & 69.79 & 69.73 & 70.08 & 70.56 & 72.16 \\
+ & LC-TIM+SAR (Static Fusion) & \underline{70.91} & \underline{71.33} & \underline{71.62} & \underline{73.28} & \underline{73.44} \\
+ & RL-HydroFM (Ours: Dynamic Graph) & 64.80 & 64.64 & 65.50 & 66.18 & 66.94 \\
+ & RL-HydroFM+SAR (Ours: Multi-Source Router) & 70.62 & 70.30 & 70.98 & 71.78 & 72.96 \\
+\midrule
+\multirow{11}{*}{\textbf{SENTINEL2 WATER}}
+ & Zero-Shot Baseline & 49.17 & 49.17 & 49.17 & 49.17 & 49.17 \\
+ & ProtoNet & 33.20 & 34.07 & 36.87 & 41.23 & 48.90 \\
+ & LP++ (Inductive) & 45.30 & 47.70 & 50.63 & 53.47 & 55.40 \\
+ & Tip-Adapter & 49.20 & 49.17 & 49.20 & 49.23 & 49.27 \\
+ & LaplacianShot & 25.63 & 25.87 & 25.00 & 26.30 & 26.50 \\
+ & TransCLIP & \textbf{66.97} & \textbf{66.97} & \textbf{66.97} & \textbf{66.97} & \textbf{66.97} \\
+ & TIM++ & 55.13 & 55.10 & 55.70 & 56.30 & 57.07 \\
+ & LC-TIM (Static k=5) & 56.87 & 58.20 & 57.67 & 58.83 & 60.03 \\
+ & LC-TIM+SAR (Static Fusion) & 59.57 & 60.17 & 60.20 & 60.50 & 62.57 \\
+ & RL-HydroFM (Ours: Dynamic Graph) & 54.60 & 55.03 & 54.57 & 56.70 & 56.63 \\
+ & RL-HydroFM+SAR (Ours: Multi-Source Router) & \underline{60.83} & \underline{61.77} & \underline{61.63} & \underline{62.20} & \underline{63.70} \\
+\midrule
+\multirow{11}{*}{\textbf{SEN12 FLOOD}}
+ & Zero-Shot Baseline & 60.87 & 60.87 & 60.87 & 60.87 & 60.87 \\
+ & ProtoNet & 40.07 & 42.73 & 45.80 & 52.60 & 57.73 \\
+ & LP++ (Inductive) & 53.00 & 56.27 & 60.80 & 64.30 & 67.07 \\
+ & Tip-Adapter & 60.87 & 60.87 & 60.87 & 60.87 & 60.87 \\
+ & LaplacianShot & 33.33 & 34.10 & 33.83 & 34.90 & 33.67 \\
+ & TransCLIP & \textbf{79.53} & \textbf{79.53} & \textbf{79.53} & \textbf{79.53} & \textbf{79.53} \\
+ & TIM++ & 67.27 & 67.77 & 67.97 & 68.80 & 70.17 \\
+ & LC-TIM (Static k=5) & 69.93 & 69.63 & 71.40 & 72.17 & 73.20 \\
+ & LC-TIM+SAR (Static Fusion) & 72.53 & 73.40 & 73.33 & 74.13 & \underline{75.13} \\
+ & RL-HydroFM (Ours: Dynamic Graph) & 69.70 & 70.67 & 71.43 & 71.43 & 72.47 \\
+ & RL-HydroFM+SAR (Ours: Multi-Source Router) & \underline{73.23} & \underline{73.70} & \underline{74.60} & \underline{74.77} & \underline{75.13} \\
+\midrule
+\multirow{11}{*}{\textbf{RESISC45 WATER}}
+ & Zero-Shot Baseline & 46.77 & 46.77 & 46.77 & 46.77 & 46.77 \\
+ & ProtoNet & 21.83 & 25.23 & 33.80 & 39.26 & 49.80 \\
+ & LP++ (Inductive) & 39.91 & 44.66 & 50.60 & 53.71 & 56.46 \\
+ & Tip-Adapter & 46.77 & 46.77 & 46.77 & 46.77 & 46.77 \\
+ & LaplacianShot & 14.31 & 14.29 & 14.57 & 16.29 & 15.26 \\
+ & TransCLIP & \textbf{69.14} & \textbf{69.14} & \textbf{69.14} & \textbf{69.14} & \textbf{69.14} \\
+ & TIM++ & 55.06 & 55.20 & 54.69 & 56.66 & 59.26 \\
+ & LC-TIM (Static k=5) & 54.80 & 55.51 & 57.40 & 58.51 & 61.29 \\
+ & LC-TIM+SAR (Static Fusion) & 58.46 & 60.17 & 60.09 & 61.03 & 64.06 \\
+ & RL-HydroFM (Ours: Dynamic Graph) & 55.54 & 55.63 & 57.00 & 58.83 & 60.80 \\
+ & RL-HydroFM+SAR (Ours: Multi-Source Router) & \underline{60.37} & \underline{61.43} & \underline{61.94} & \underline{63.03} & \underline{66.23} \\
+\midrule
+\bottomrule
+\end{tabular}
+}
+\end{table*}

@@ -1,0 +1,68 @@
+\documentclass[journal]{IEEEtran}
+
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{bm}
+\usepackage{subcaption}
+\usepackage{pifont}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\providecommand{\bm}[1]{\boldsymbol{#1}}
+\newcommand{\rllctim}{\textsc{RL-HydroFM}}
+\newcommand{\rllctimd}{\textsc{RL-HydroFM+SAR}}
+\newcommand{\lctim}{\textsc{LC-TIM}}
+
+\begin{document}
+
+\title{Reinforcement-Learned Multi-Source Transductive Foundation Models for Few-Shot Remote Sensing and Water Resources Monitoring}
+
+\author{Ahmad~Nawaz~Zaheer, ~Muhammad~Farhan%
+\thanks{Ahmad Nawaz Zaheer is with BOYA International College, Jiangxi Institute of Technology, 115 Ziyang Avenue, Nanchang, 330022, Jiangxi, China (e-mail: alpha@jxut.edu.cn, caosuirong@jxut.edu.cn).}%
+\thanks{Muhammad Farhan is with the Department of Computer Science, COMSATS University Islamabad, Sahiwal Campus, Pakistan (e-mail: farhan@cuisahiwal.edu.pk; farhansajid@gmail.com).}%
+\thanks{The complete source code, trained graph policies, and standardized water resources benchmark datasets are publicly accessible at \protect\url{https://github.com/farhansajid/RL-HydroFM}.}%
+}
+
+\markboth{IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing,~Vol.~XX, No.~XX,~2026}%
+{Zaheer and Farhan: Reinforcement-Learned Multi-Source Foundation Models for Water Resources}
+
+\maketitle
+
+\begin{abstract}
+Continuous planetary monitoring of inland water bodies, reservoir storages, river networks, and catastrophic flood inundation is indispensable for global water security, agricultural resource planning, and emergency disaster mitigation. While recent Earth observation foundation models---including vision-language models (e.g., GeoRSCLIP, RemoteCLIP) and self-supervised vision transformers (e.g., DINOv3, SatMAE)---provide rich generic representations, transferring them to specialized hydrological targets with scarce labeled data remains a formidable challenge. In operational disaster response, transductive inference is particularly compelling because satellite imagery is acquired in large spatial scenes that can be inferred jointly as an unlabeled query batch. However, existing transductive information maximization techniques rely on rigid, handcrafted heuristics: static neighborhood sizes ($\kappa=5$), uniform edge weights, and invariant hyperparameter trajectories that fail under intricate hydrological topologies (e.g., narrow braided channels, shallow wetlands) and severe atmospheric cloud degradation. In this paper, we propose \rllctim{} (\textbf{Reinforcement-Learned Hydro Foundation Model Adaptation}), a novel framework that formulates transductive neighborhood graph construction and multi-source foundation model fusion as a policy-driven decision process. An Actor-Critic graph policy observes zero-shot predictive entropy, local topological density, and cross-modal optical-SAR concordance to dynamically assign sample-wise neighborhood cardinalities ($\kappa_i \in \{1, 3, 5, 8, 12, 16\}$), confidence-calibrated consistency weights ($\lambda_{\text{LC}, i} \in [0, 1]$), and multi-modal routing coefficients ($\bm{\beta}_i \in \Delta^1$) across complementary optical (GeoRSCLIP/Sentinel-2) and microwave radar (Sentinel-1 SAR/DINOv3) encoders. The resulting dynamic regularizers enter directly into closed-form Alternating Direction Method (ADM) iterations, introducing zero gradient backpropagation into the frozen foundation backbones and maintaining sub-second inference speeds. Extensive experiments on four dedicated Earth observation water benchmarks---EuroSAT-Water, Kaggle Sentinel-2 Water Bodies, Sen12-Flood, and RESISC45-Water---demonstrate that \rllctim{} consistently outperforms ten representative inductive, training-free, and transductive baselines (including Zero-Shot, ProtoNet, LP++, Tip-Adapter, LaplacianShot, TransCLIP, TIM++, and LC-TIM), achieving up to $+6.5\%$ top-1 accuracy gains in the extreme low-shot regime ($1$-shot and $2$-shot) while exhibiting exceptional cloud-penetrating resilience during catastrophic weather events.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Earth observation, geospatial foundation models, reinforcement learning, transductive few-shot learning, water resources monitoring, flood mapping, multi-source fusion, Sentinel-1/Sentinel-2, vision-language models.
+\end{IEEEkeywords}
+
+\input{sections/01_introduction.tex}
+\input{sections/02_related_work.tex}
+\input{sections/03_formulation.tex}
+\input{sections/04_methodology.tex}
+\input{sections/05_experimental_setup.tex}
+\input{sections/06_results_analysis.tex}
+\input{sections/07_ablation_studies.tex}
+\input{sections/08_hydrological_discussion.tex}
+\input{sections/09_conclusion.tex}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

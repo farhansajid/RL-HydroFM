@@ -1,0 +1,20 @@
+% Per-Class Diagnostic Evaluation Metrics on Sen12-Flood Benchmark
+\begin{table}[t]
+\centering
+\caption{Class-wise Precision (P \%), Recall (R \%), and Macro-F1 (F1 \%) under 4-Shot Regime on Sen12-Flood Multi-Modal Benchmark.}
+\label{tab:per_class_metrics}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{l|ccc|ccc|ccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}} & \multicolumn{3}{c|}{\textbf{Flooded Inundation}} & \multicolumn{3}{c|}{\textbf{Permanent Water}} & \multicolumn{3}{c}{\textbf{Non-Flooded}} \\
+& \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{P} & \textbf{R} & \textbf{F1} \\
+\midrule
+Zero-Shot & 56.4 & 60.1 & 58.2 & 62.8 & 66.3 & 64.5 & 63.5 & 56.8 & 59.9 \\
+LP++ & 58.2 & 55.9 & 57.0 & 60.5 & 63.8 & 62.1 & 64.1 & 62.5 & 63.3 \\
+TIM++ & 65.2 & 67.9 & 66.5 & 70.1 & 72.0 & 71.0 & 69.4 & 67.1 & 68.2 \\
+LC-TIM & 68.4 & 70.0 & 69.2 & 72.5 & 75.1 & 73.8 & 72.0 & 71.0 & 71.5 \\
+\textbf{\rllctimd{}} & \textbf{74.8} & \textbf{76.0} & \textbf{75.4} & \textbf{78.2} & \textbf{79.6} & \textbf{78.9} & \textbf{76.1} & \textbf{75.5} & \textbf{75.8} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

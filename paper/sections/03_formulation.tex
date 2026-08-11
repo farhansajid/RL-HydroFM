@@ -1,0 +1,91 @@
+\section{Problem Formulation \& Theoretical Foundations}
+\label{sec:formulation}
+
+\subsection{Mathematical Setup \& Embeddings}
+Let $\theta_{\text{opt}}(\cdot)$ denote the visual encoder of a frozen optical geospatial foundation model (e.g., GeoRSCLIP ViT-B/32), $\theta_{\text{text}}(\cdot)$ its text encoder, and $\theta_{\text{sar}}(\cdot)$ a supplemental structural/SAR vision transformer (e.g., Sentinel-1 SAR encoder or DINOv3 SAT-493M). For an input satellite image $\bm{x}_i$, the $\ell_2$-normalized optical and SAR embeddings are:
+\begin{equation}
+    \bm{f}_i = \frac{\theta_{\text{opt}}(\bm{x}_i)}{\lVert \theta_{\text{opt}}(\bm{x}_i) \rVert_2} \in \mathbb{R}^{d_1}, \qquad \bm{g}_i = \frac{\theta_{\text{sar}}(\bm{x}_i)}{\lVert \theta_{\text{sar}}(\bm{x}_i) \rVert_2} \in \mathbb{R}^{d_2}.
+    \label{eq:embeddings}
+\end{equation}
+For a set of $K$ target water and land-cover classes, let $\bm{c}_k$ denote the domain-specific textual prompt describing class $k \in \{1,\dots,K\}$ (e.g., \emph{``a Sentinel-2 satellite photo of a river channel''}). The normalized textual prototype is:
+\begin{equation}
+    \bm{t}_k = \frac{\theta_{\text{text}}(\bm{c}_k)}{\lVert \theta_{\text{text}}(\bm{c}_k) \rVert_2} \in \mathbb{R}^{d_1}.
+    \label{eq:text_proto}
+\end{equation}
+The zero-shot prior $\hat{\bm{y}}_i = (\hat{y}_{i1}, \dots, \hat{y}_{iK}) \in \Delta^{K-1}$ is given by the cosine-similarity Softmax:
+\begin{equation}
+    \hat{y}_{ik} = \frac{\exp(\eta\, \bm{f}_i^{\top} \bm{t}_k)}{\sum_{j=1}^{K} \exp(\eta\, \bm{f}_i^{\top} \bm{t}_j)},
+    \label{eq:zeroshot}
+\end{equation}
+where $\eta = 100$ is a fixed inverse temperature scaling factor.
+
+We consider a few-shot transductive setup with a small labeled support set $\mathcal{S} = \{(\bm{x}_i, y_{ik})\}_{i \in \mathcal{S}}$ containing $n \in \{1, 2, 4, 8, 16\}$ samples per class ($|\mathcal{S}| = N_s = n K$), and an unlabeled query set $\mathcal{Q} = \{\bm{x}_i\}_{i \in \mathcal{Q}}$ comprising $|\mathcal{Q}| = N_q$ tiles. A soft prototype classifier matrix $\mathbf{W} = [\bm{w}_1, \dots, \bm{w}_K] \in \mathbb{R}^{d_1 \times K}$ generates query posterior class probabilities:
+\begin{equation}
+    p_{ik} = \frac{\exp(-\tfrac{\tau}{2} \lVert \bm{f}_i - \bm{w}_k \rVert^2)}{\sum_{j=1}^{K} \exp(-\tfrac{\tau}{2} \lVert \bm{f}_i - \bm{w}_j \rVert^2)},
+    \label{eq:posterior}
+\end{equation}
+where $\tau = 120$ is the metric scaling temperature.
+
+\subsection{Base Transductive Information Maximization}
+The foundational transductive objective optimizes prototype matrix $\mathbf{W}$ by minimizing a composite loss over support supervision, query mutual information, and zero-shot text alignment:
+\begin{equation}
+    \min_{\mathbf{W}} \; \lambda\,\mathrm{CE}(\mathbf{W}; \mathcal{S}) \;-\; \hat{\mathcal{I}}_{\alpha}(X_{\mathcal{Q}}; Y_{\mathcal{Q}}) \;+\; \gamma\,\mathcal{D}_{\mathrm{KL}}(\bm{p} \,\Vert\, \hat{\bm{y}}),
+    \label{eq:tim_base}
+\end{equation}
+where:
+\begin{equation}
+    \mathrm{CE}(\mathbf{W}; \mathcal{S}) = -\frac{1}{|\mathcal{S}|}\sum_{i \in \mathcal{S}} \sum_{k=1}^K y_{ik} \log p_{ik},
+\end{equation}
+and $\hat{\mathcal{I}}_{\alpha}(X_{\mathcal{Q}}; Y_{\mathcal{Q}}) = \alpha \hat{\mathcal{H}}(Y_{\mathcal{Q}}) - \hat{\mathcal{H}}(Y_{\mathcal{Q}}|X_{\mathcal{Q}})$ represents the $\alpha$-generalized empirical mutual information. The marginal entropy $\hat{\mathcal{H}}(Y_{\mathcal{Q}}) = -\sum_k \bar{p}_k \log \bar{p}_k$ (where $\bar{p}_k = \frac{1}{N_q}\sum_i p_{ik}$) prevents majority-class collapse, while the conditional entropy $\hat{\mathcal{H}}(Y_{\mathcal{Q}}|X_{\mathcal{Q}}) = -\frac{1}{N_q}\sum_i \sum_k p_{ik} \log p_{ik}$ drives confident, decisive cluster assignments.
+
+\subsection{Theoretical Failure Modes of Static Neighborhood Graphs}
+Locally consistent transduction~\cite{elkhoury2026lctim} penalizes divergence between query posteriors $\bm{p}_i$ and the average prediction of their neighbors $\bar{\bm{p}}_i = \frac{1}{\kappa}\sum_{j \in \mathcal{N}_i(\kappa)} \bm{p}_j$. Here, we formally analyze why enforcing a uniform static $\kappa=5$ across all satellite tiles leads to catastrophic label contamination:
+
+\begin{definition}[Manifold Boundary Distance]
+Let $\mathcal{M}_k \subset \mathbb{R}^d$ denote the continuous sub-manifold corresponding to hydrological class $k$, and let $\partial \mathcal{M}_{k, l}$ denote the decision boundary separating class $k$ from adjacent class $l$. For any query feature $\bm{f}_i \in \mathcal{M}_k$, the geometric boundary margin is $\delta_i = \inf_{\bm{z} \in \partial \mathcal{M}_{k, l}} \lVert \bm{f}_i - \bm{z} \rVert_2$.
+\end{definition}
+
+\begin{lemma}[Cross-Manifold Edge Contamination]
+\label{lem:contamination}
+Let the local feature density around boundary point $\bm{f}_i \in \mathcal{M}_k$ be $\rho_k(\bm{f}_i)$. For a static neighborhood size $\kappa$, the radius of the $\kappa$-nearest-neighbor ball is $r_i(\kappa) = \big(\frac{\kappa}{N_q V_d \rho_k(\bm{f}_i)}\big)^{1/d}$, where $V_d$ is the volume of the unit ball in $\mathbb{R}^d$. If $r_i(\kappa) > \delta_i$, the neighborhood $\mathcal{N}_i(\kappa)$ contains at least one cross-class edge:
+\begin{equation}
+    \exists j \in \mathcal{N}_i(\kappa) \quad \text{such that} \quad \bm{f}_j \in \mathcal{M}_l \quad (l \neq k).
+\end{equation}
+\end{lemma}
+
+\begin{theorem}[Label Bias Propagation Bound]
+\label{thm:error_bound}
+Let $\bm{e}_k \in \{0, 1\}^K$ denote the true one-hot class vector for $\bm{f}_i \in \mathcal{M}_k$. Under a static $\kappa$-NN graph, the label bias introduced into the local consistency regularizer for boundary sample $\bm{f}_i$ satisfies:
+\begin{equation}
+    \lVert \bar{\bm{p}}_i - \bm{e}_k \rVert_1 \ge \frac{1}{\kappa} \sum_{j \in \mathcal{N}_i(\kappa)} \mathbb{I}(\bm{f}_j \notin \mathcal{M}_k) \cdot (1 - p_{jk}).
+\end{equation}
+As $\kappa$ increases in low-density boundary zones, the regularizer enforces consensus with mismatched land-cover classes, creating systematic error propagation.
+\end{theorem}
+
+\begin{proof}
+By definition of the consensus vector, $\bar{\bm{p}}_i = \frac{1}{\kappa} \sum_{j \in \mathcal{N}_i(\kappa)} \bm{p}_j$. Decomposing the sum into intra-manifold neighbors $\mathcal{N}_i^{\text{in}} = \{j \in \mathcal{N}_i \mid \bm{f}_j \in \mathcal{M}_k\}$ and cross-manifold neighbors $\mathcal{N}_i^{\text{cross}} = \{j \in \mathcal{N}_i \mid \bm{f}_j \notin \mathcal{M}_k\}$:
+\begin{equation}
+    \bar{p}_{ik} = \frac{1}{\kappa}\sum_{j \in \mathcal{N}_i^{\text{in}}} p_{jk} + \frac{1}{\kappa}\sum_{j \in \mathcal{N}_i^{\text{cross}}} p_{jk} \le \frac{|\mathcal{N}_i^{\text{in}}|}{\kappa} + \frac{1}{\kappa}\sum_{j \in \mathcal{N}_i^{\text{cross}}} p_{jk}.
+\end{equation}
+Since $1 - \bar{p}_{ik} \ge \frac{1}{\kappa}\sum_{j \in \mathcal{N}_i^{\text{cross}}} (1 - p_{jk})$, applying the $\ell_1$ norm definition yields the stated lower bound.
+\end{proof}
+
+\begin{corollary}[Optimal Dynamic Regularization]
+\label{cor:optimal_k}
+For ambiguous boundary samples where zero-shot predictive entropy is high ($\bar{\mathcal{H}}_i \to 1$) and margin is small ($\Delta m_i \to 0$), setting $\kappa_i = 1$ and $\lambda_{\text{LC}, i} \to 0$ strictly eliminates cross-manifold label contamination. Conversely, for interior samples with $\delta_i \gg r_i$, expanding $\kappa_i \ge 12$ maximizes transductive manifold smoothing without risk of contamination.
+\end{corollary}
+
+\begin{theorem}[Monotonic Convergence of Vectorized ADM Update]
+\label{thm:adm_convergence}
+Let $\mathcal{F}(\mathbf{Q}, \mathbf{W})$ denote the augmented transductive Lagrangian defined in Eq.~\eqref{eq:lagrangian}. Under the alternating minimization scheme where $\mathbf{Q}^{(t+1)} = \arg\min_{\mathbf{Q} \in \Delta} \mathcal{L}(\mathbf{Q}, \mathbf{W}^{(t)})$ and $\mathbf{W}^{(t+1)} = \arg\min_{\mathbf{W}} \mathcal{L}(\mathbf{Q}^{(t+1)}, \mathbf{W})$, the sequence $\{\mathcal{F}(\mathbf{Q}^{(t)}, \mathbf{W}^{(t)})\}_{t=0}^\infty$ is monotonically non-increasing and converges to a local stationary point:
+\begin{equation}
+    \mathcal{F}(\mathbf{Q}^{(t+1)}, \mathbf{W}^{(t+1)}) \le \mathcal{F}(\mathbf{Q}^{(t+1)}, \mathbf{W}^{(t)}) \le \mathcal{F}(\mathbf{Q}^{(t)}, \mathbf{W}^{(t)}).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Because the $q$-update is the unique closed-form minimizer of the convex subproblem $\min_{\mathbf{Q} \in \Delta} \mathcal{L}(\mathbf{Q}, \mathbf{W}^{(t)})$ derived via KKT stationarity in Eq.~\eqref{eq:q_update}, $\mathcal{F}(\mathbf{Q}^{(t+1)}, \mathbf{W}^{(t)}) \le \mathcal{F}(\mathbf{Q}^{(t)}, \mathbf{W}^{(t)}).$ Similarly, the centroid update in Eq.~\eqref{eq:w_update} minimizes the quadratic support and query alignment terms with respect to prototype vectors $\mathbf{W}$. Since $\mathcal{F}$ is bounded below by zero (entropies and KL divergences are non-negative), the sequence converges monotonically by the Monotone Convergence Theorem.
+\end{proof}
+
+\subsection{Geometric Analysis of Feature Manifold Curvature}
+To further elucidate the geometry of multi-source Earth observation features, let $\mathcal{M} = \bigcup_{k=1}^K \mathcal{M}_k$ denote the Riemannian manifold embedded in Euclidean space $\mathbb{R}^d$. The Riemann curvature tensor $R(X, Y)Z = \nabla_X \nabla_Y Z - \nabla_Y \nabla_X Z - \nabla_{[X,Y]} Z$ measures the non-flatness of the underlying geospatial representation space. In regions of high intrinsic curvature, such as convoluted shoreline boundaries and fractured urban terrain, standard Euclidean distance metrics severely distort geodesic relationships. By learning dynamic neighborhood bounds $\kappa_i$ and multi-modal metric routing $\bm{\beta}_i$, \rllctim{} effectively adapts to local Riemannian curvature, ensuring that graph diffusion occurs exclusively along the true data manifold rather than cutting across empty feature space.

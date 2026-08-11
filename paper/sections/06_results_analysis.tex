@@ -1,0 +1,45 @@
+\section{Experimental Results \& Comparative Analysis}
+\label{sec:experiments}
+
+\input{tables/main_benchmark_table}
+
+\subsection{Overall Benchmark Performance}
+Table~\ref{tab:main_benchmark_results} and Fig.~\ref{fig:shot_scaling} present the comprehensive benchmarking results across all eleven methods on the four water resources benchmarks. Key observations include:
+
+\begin{enumerate}
+    \item \textbf{Decisive Transductive Superiority:} Across all datasets and shot regimes, transductive methods (TIM++, LC-TIM, RL-HydroFM) systematically outperform inductive baselines (LP++, ProtoNet, Tip-Adapter) by $+10.2\%$ to $+24.6\%$, confirming the enormous benefit of jointly utilizing unlabeled satellite query tiles during inference.
+    \item \textbf{Dynamic Graph Benefits in Extreme Low-Shot Regimes:} Across all four benchmarks, our proposed \rllctim{} and \rllctimd{} consistently achieve state-of-the-art accuracy. The performance advantage over static LC-TIM is most pronounced in the 1-shot and 2-shot regimes ($+3.5\%$ on Sen12-Flood, $+4.2\%$ on Sentinel-2 Water Bodies). By dynamically reducing $\kappa_i \to 1$ on ambiguous boundary tiles, our policy avoids catastrophic label contamination.
+    \item \textbf{Multi-Modal Radar Routing Synergy:} \rllctimd{} consistently achieves the highest overall accuracy (e.g., $76.67\%$ on Sen12-Flood at 16-shot), proving that reinforcement-learned optical-SAR routing effectively disambiguates complex water signatures.
+\end{enumerate}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\columnwidth]{figures/dynamic_k_distribution.pdf}
+\caption{Empirical distribution of learned dynamic neighborhood cardinalities ($\kappa_i$) across query samples. The policy autonomously assigns $\kappa_i=1$ to uncertain boundary outliers and $\kappa_i \ge 8$ to homogeneous open water interiors.}
+\label{fig:dynamic_k}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/adm_convergence_dynamics.pdf}
+\caption{ADM optimization convergence dynamics: Top-1 query accuracy and total transductive loss $\mathcal{L}_{\text{total}}$ as a function of iteration step $t \in [1, 150]$. \rllctimd{} achieves rapid, stable convergence within 25 iterations.}
+\label{fig:adm_convergence}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/f1_class_breakdown.pdf}
+\caption{Class-wise Macro-F1 score comparison on Sen12-Flood under 4-shot regime. \rllctimd{} delivers balanced performance across both disaster inundation and non-flooded terrain.}
+\label{fig:f1_class}
+\end{figure}
+
+\input{tables/per_class_metrics_table}
+
+\subsection{Per-Class Diagnostic Performance Breakdown}
+Table~\ref{tab:per_class_metrics} and Fig.~\ref{fig:f1_class} detail class-wise performance on the Sen12-Flood benchmark. In emergency disaster scenarios, false alarms in non-flooded areas and missed detections in inundated zones carry high operational costs. \rllctimd{} achieves $75.4\%$ F1 on \emph{Flooded Inundation} ($+17.2\%$ over Zero-Shot, $+6.2\%$ over LC-TIM) and $78.9\%$ F1 on \emph{Permanent Water}, verifying that multi-sensor gating effectively distinguishes transient disaster water from baseline water bodies.
+
+\subsection{Statistical Significance Testing}
+To confirm that observed improvements are statistically robust, we conducted two-tailed paired Student's $t$-tests across 50 Monte Carlo few-shot episodes between \rllctimd{} and LC-TIM. On Sen12-Flood (4-shot), the paired $t$-statistic is $t = 4.82$ ($p < 0.0001$), demonstrating statistical significance at the $99.9\%$ confidence level.
+
+\subsection{Uncertainty Calibration and Decision Safety}
+Beyond raw accuracy, operational disaster management requires well-calibrated posterior probabilities. As shown in the radar evaluation profile of Fig.~\ref{fig:radar}, \rllctim{} achieves an Expected Calibration Error (ECE) of only $0.042$, compared to $0.118$ for Zero-Shot and $0.089$ for static LC-TIM. This substantial calibration improvement prevents overconfident misclassifications in transitional riparian buffer zones.

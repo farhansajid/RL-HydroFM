@@ -1,0 +1,18 @@
+% Earth Observation Benchmark Dataset Characteristics Table
+\begin{table*}[t]
+\centering
+\caption{Comprehensive Summary of Earth Observation Water Resources \& Remote Sensing Few-Shot Benchmark Datasets.}
+\label{tab:dataset_statistics}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Benchmark Dataset} & \textbf{Sensor Constellation} & \textbf{Modality Type} & \textbf{Spatial Resolution} & \textbf{Image Dimensions} & \textbf{\# Classes} & \textbf{Evaluated Hydrological Categories} \\
+\midrule
+\textbf{EuroSAT-Water}~\cite{helber2018eurosat} & Sentinel-2 MSI & Multi-Spectral (13 Bands) & 10 m / 20 m & $64 \times 64$ & 5 & River, Sea/Lake, Permanent Crop, Pasture, Herbaceous \\
+\textbf{Sentinel-2 Water Bodies} & Sentinel-2 MSI & Optical Multi-Spectral & 10 m & $256 \times 256$ & 4 & Open Water, Turbid Water, Wetland, Dry Land \\
+\textbf{Sen12-Flood}~\cite{boudjit2021sen12flood} & Sentinel-1 SAR + Sentinel-2 & Multi-Modal Optical + SAR & 10 m & $256 \times 256$ & 3 & Flooded Inundation, Permanent Water, Non-Flooded Terrain \\
+\textbf{RESISC45-Water}~\cite{cheng2017resisc45} & Aerial VHR Orthoimagery & RGB Optical & 0.2 m -- 30 m & $256 \times 256$ & 7 & Lake, River, Wetland, Sea Ice, Harbor, Beach, Island \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}

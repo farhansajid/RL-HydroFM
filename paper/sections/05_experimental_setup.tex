@@ -1,0 +1,44 @@
+\section{Experimental Setup \& Benchmarks}
+\label{sec:setup}
+
+\subsection{Benchmark Datasets \& Radiometric Calibration}
+As summarized in Table~\ref{tab:dataset_statistics}, we evaluate \rllctim{} across four Earth observation water resources benchmarks:
+
+\begin{enumerate}
+    \item \textbf{EuroSAT-Water~\cite{helber2018eurosat}:} Multi-spectral Sentinel-2 benchmark containing 13 spectral bands covering 5 target hydrological and land-cover categories: \emph{River}, \emph{SeaLake}, \emph{PermanentCrop}, \emph{Pasture}, and \emph{HerbaceousVegetation}. Images are calibrated to Top-Of-Atmosphere (TOA) Level-1C reflectances at $10\text{--}60$\,m spatial resolution.
+    \item \textbf{Sentinel-2 Water Bodies:} High-resolution multi-spectral dataset curated for surface water identification, comprising 4 classes: \emph{Open Water}, \emph{Turbid Water}, \emph{Wetland}, and \emph{Dry Land}.
+    \item \textbf{Sen12-Flood~\cite{boudjit2021sen12flood}:} Dedicated multi-sensor flood disaster dataset containing paired Sentinel-1 SAR (dual-polarization VV and VH backscatter intensity $\sigma^0$ in decibels) and Sentinel-2 optical multi-spectral scenes across 3 disaster categories: \emph{Flooded Inundation}, \emph{Permanent Water}, and \emph{Non-Flooded Terrain}. SAR backscatter is speckle-filtered via Refined Lee filtering and radiometrically calibrated.
+    \item \textbf{RESISC45-Water~\cite{cheng2017resisc45}:} High-resolution aerial optical remote sensing benchmark comprising 7 fine-grained hydrological classes: \emph{lake}, \emph{river}, \emph{wetland}, \emph{sea ice}, \emph{harbor}, \emph{beach}, and \emph{island}.
+\end{enumerate}
+
+\subsection{Compared Baselines}
+We compare \rllctim{} against ten representative baselines spanning inductive, training-free, and transductive paradigms:
+\begin{itemize}
+    \item \textbf{Zero-Shot:} GeoRSCLIP zero-shot inference with hydrological prompt templates.
+    \item \textbf{ProtoNet~\cite{snell2017prototypical}:} Classical metric few-shot prototypical nearest-centroid classifier.
+    \item \textbf{LP++~\cite{huang2024lpplusplus}:} State-of-the-art inductive linear probe with learnable zero-shot calibration.
+    \item \textbf{Tip-Adapter~\cite{zhang2022tipadapter}:} Non-parametric training-free key-value cache adapter for vision-language models.
+    \item \textbf{LaplacianShot~\cite{ziko2020laplacianshot}:} Transductive graph Laplacian smoothing with fixed-point diffusion.
+    \item \textbf{TransCLIP~\cite{zanella2024boosting}:} Gaussian-mixture transductive expectation-maximization baseline.
+    \item \textbf{TIM++~\cite{li2026timplusplus}:} Mutual information transductive adaptation over frozen embeddings.
+    \item \textbf{LC-TIM~\cite{elkhoury2026lctim}:} Locally consistent TIM with static $\kappa=5, \lambda_{\text{LC}}=0.3$.
+    \item \textbf{LC-TIM+SAR:} Static optical-SAR multiplicative fusion baseline.
+    \item \textbf{\rllctim{} (Ours):} Policy-driven dynamic graph adaptation on optical VLM.
+    \item \textbf{\rllctimd{} (Ours):} Multi-source optical + radar dynamic routing.
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+Performance is evaluated across five standard metrics:
+\begin{enumerate}
+    \item \textbf{Top-1 Accuracy (\%):} Proportion of correctly classified query tiles.
+    \item \textbf{Macro-F1 Score (\%):} Unweighted average of per-class F1-scores, $\mathrm{Macro\text{-}F1} = \frac{1}{K}\sum_{k=1}^K \frac{2 P_k R_k}{P_k + R_k}$, measuring balance across rare disaster water and majority dry terrain.
+    \item \textbf{Precision ($P_k$) \& Recall ($R_k$):} Class-specific true positive fidelity and coverage.
+    \item \textbf{Expected Calibration Error (ECE):} Difference between predictive confidence and empirical accuracy across 10 probability bins.
+    \item \textbf{GPU Runtime Latency (ms):} Wall-clock execution time per query batch on an NVIDIA RTX GPU.
+\end{enumerate}
+
+\subsection{Implementation Details \& Prompt Dictionaries}
+All experiments run on PyTorch 2.1 with CUDA 12.1. Feature extraction uses frozen GeoRSCLIP ViT-B/32 ($d_1=512$) and DINOv3 SAT-493M ($d_2=768$). The policy network is optimized with Adam ($\eta_{\text{pg}}=3 \times 10^{-4}, \eta_{\text{critic}}=1 \times 10^{-3}$) for 300 epochs with PPO clip parameter $\epsilon_{\text{clip}}=0.2$. ADM iterations use temperature $\tau=120, \lambda=1.0, \lambda_2=0.01, \gamma=0.05, \alpha=0.1$.
+
+\subsection{Experimental Integrity and Rigorous Benchmarking Protocols}
+To prevent data snooping and information leakage, all few-shot support sets are sampled strictly from independent geographic tiles disjoint from the query evaluation set. Each experimental configuration is executed across 5 random seeds (seeds 42 through 46) with 50 Monte Carlo evaluation episodes per run. We report the exact empirical mean and standard error of the mean across all episodes. No hyperparameter tuning was conducted on the evaluation query sets.

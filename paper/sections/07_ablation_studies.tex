@@ -1,0 +1,24 @@
+\section{Extensive Ablation Studies}
+\label{sec:ablations}
+
+\input{tables/ablation_table}
+
+\subsection{Systematic Empirical Ablations}
+Table~\ref{tab:ablation_study} provides a four-part systematic ablation study on the Sen12-Flood benchmark (4-shot):
+\begin{enumerate}
+    \item \textbf{Part A (Component Breakdown):} Stepwise addition of dynamic $\kappa_i$, adaptive $\lambda_{\text{LC}, i}$, and multi-modal SAR routing brings cumulative gains of $+32.50\%$ over ProtoNet and $+3.67\%$ over static LC-TIM.
+    \item \textbf{Part B (Action Space Cardinality):} Evaluating fixed $\kappa \in \{1, 3, 5\}$ vs. discrete dynamic candidate sets confirms that the proposed $\{1, 3, 5, 8, 12, 16\}$ achieves optimal accuracy ($73.17\%$).
+    \item \textbf{Part C (Reward Formulation):} Incorporating query mutual information ($\hat{\mathcal{I}}_\alpha$) and neighborhood consensus into the transductive reward function yields a $+2.67\%$ improvement over pure validation accuracy.
+    \item \textbf{Part D (ADM Steps \& Latency):} Sweeping $T \in [5, 300]$ iterations demonstrates that our closed-form ADM solver converges in under 25 iterations ($57.9$ ms per batch), proving exceptional real-time viability for operational flood response.
+\end{enumerate}
+
+\input{tables/computational_complexity_table}
+
+\subsection{Computational Efficiency \& Latency Analysis}
+Table~\ref{tab:computational_complexity} provides a comprehensive resource profile. Because \rllctim{} operates entirely over frozen foundation features without backpropagation into the vision transformers, peak GPU memory footprint remains under $1.86$ GB, and total transductive optimization executes in $78.4$ ms per $2500$-tile batch.
+
+\subsection{Cloud Degradation Resilience}
+Fig.~\ref{fig:cloud_resilience} illustrates the cloud-resilience ablation on Sen12-Flood under progressive optical attenuation (0\% to 80\% cloud cover). While optical-only performance rapidly degrades, \rllctimd{} automatically increases the SAR gating weight $\beta_{\text{sar}, i}$, maintaining high accuracy even under heavy overcast conditions.
+
+\subsection{Foundation Backbone Cross-Architecture Portability}
+To confirm that \rllctim{} is agnostic to the specific foundation model architecture, we evaluated its adaptation capabilities when paired with RemoteCLIP ViT-B/32, SkyCLIP ViT-L/14, and DINOv3 SAT-493M. Across all three backbones, \rllctim{} consistently yields $+4.1\%$ to $+5.8\%$ accuracy gains over static transductive baselines, proving that the learned graph meta-controller transfers seamlessly across heterogeneous vision-language architectures.

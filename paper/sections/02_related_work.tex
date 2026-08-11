@@ -1,0 +1,42 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Geospatial Foundation Models in Remote Sensing}
+Pre-trained foundation models have revolutionized Earth observation by establishing general-purpose visual representations that transfer across diverse downstream tasks~\cite{zhang2024rs5m,simeoni2025dinov3,congo2023satmae}. In contrast to traditional supervised deep neural networks trained on narrow, task-specific datasets, foundation models are trained on massive archives of satellite imagery using self-supervised learning (SSL) or contrastive vision-language pre-training (VLP)~\cite{radford2021learning}.
+
+In vision-language modeling, RemoteCLIP~\cite{wang2023remoteclip}, GeoRSCLIP~\cite{zhang2024rs5m}, and SkyCLIP~\cite{mai2023skyclip} align satellite multi-spectral imagery with descriptive domain-specific text captions derived from crowdsourced geospatial databases (e.g., OpenStreetMap) and automated vision-language bootstrapping. The fundamental contrastive objective minimizes the symmetric InfoNCE loss across a mini-batch of $B$ image-text pairs $\{(\bm{x}_i, \bm{c}_i)\}_{i=1}^B$:
+\begin{equation}
+\begin{split}
+    \mathcal{L}_{\text{VLP}} = -\frac{1}{2B} \sum_{i=1}^B \Bigg[ \log \frac{\exp(\bm{f}_i^\top \bm{t}_i / \tau_0)}{\sum_{j=1}^B \exp(\bm{f}_i^\top \bm{t}_j / \tau_0)} \\
+    + \log \frac{\exp(\bm{t}_i^\top \bm{f}_i / \tau_0)}{\sum_{j=1}^B \exp(\bm{t}_i^\top \bm{f}_j / \tau_0)} \Bigg],
+\end{split}
+\end{equation}
+where $\bm{f}_i = \theta_{\text{opt}}(\bm{x}_i)$ and $\bm{t}_i = \theta_{\text{text}}(\bm{c}_i)$ denote normalized visual and textual embeddings, and $\tau_0$ is a learnable temperature. These models enable zero-shot classification and zero-shot open-vocabulary retrieval by computing cosine similarity between satellite image embeddings and text prompt representations.
+
+Concurrently, masked autoencoding architectures---such as SatMAE~\cite{congo2023satmae}, Prithvi-100M/300M~\cite{jakubik2023prithvi}, Scale-MAE~\cite{reed2023scalemae}, and RingMo~\cite{qi2020mlrsnet}---reconstruct masked spatial-spectral patches from multi-spectral Sentinel-2 and Landsat pixels, capturing deep geometric and physical dependencies. Furthermore, self-supervised vision transformers such as DINOv2 and DINOv3~\cite{simeoni2025dinov3} demonstrate exceptional feature granularity, dense spatial correspondence, and out-of-distribution robustness. In this work, we harness frozen GeoRSCLIP and DINOv3 representations, completely eliminating the prohibitive cost of full-parameter fine-tuning while exploiting their rich geospatial representations.
+
+\subsection{Multi-Source Remote Sensing for Hydrological Surveillance}
+Surface water extraction and flood inundation mapping have historically relied on handcrafted multi-spectral indices, such as the Normalized Difference Water Index (NDWI)~\cite{mcfreeters1996use}, Modified NDWI (MNDWI)~\cite{xu2006modification}, and Automated Water Extraction Index (AWEI)~\cite{pekel2016high}. While optical spectral indices operate effectively under clear skies, they fail catastrophically in the presence of cloud cover, cloud shadows, and haze~\cite{rahimzadegan2021surface}.
+
+To achieve all-weather day-and-night surface water surveillance, Synthetic Aperture Radar (SAR) systems, such as Sentinel-1 C-band radar, emit microwave pulses and record backscatter intensity ($\sigma^0_{\text{VV}}, \sigma^0_{\text{VH}}$)~\cite{clement2018multi,boudjit2021sen12flood}. Calm open water acts as a specular reflector, scattering microwave energy away from the radar antenna and appearing as dark patches in SAR backscatter imagery. However, wind-induced surface waves, capillary roughness, urban double-bounce reflections, and speckle noise frequently cause severe classification ambiguity. 
+
+The Cloude-Pottier eigenvalue-eigenvector decomposition of the coherency matrix $\mathbf{T}_3$ represents backscattering mechanisms via entropy $H$, anisotropy $A$, and mean alpha angle $\bar{\alpha}$:
+\begin{equation}
+    \bar{\alpha} = \sum_{i=1}^3 P_i \alpha_i, \qquad H = -\sum_{i=1}^3 P_i \log_3 P_i,
+\end{equation}
+where $P_i$ are normalized eigenvalues, distinguishing surface scattering ($\bar{\alpha} \to 0^\circ$), double bounce ($\bar{\alpha} \to 90^\circ$), and volume scattering ($\bar{\alpha} \approx 45^\circ$). Recent multi-source data fusion frameworks~\cite{hong2021spectralformer,plaza2009recent} demonstrate that combining complementary optical multi-spectral and microwave SAR observations provides the most reliable foundation for water resources monitoring. However, previous fusion methods employ static, heuristic weighting that cannot adapt when one modality is degraded.
+
+\subsection{Inductive vs. Transductive Few-Shot Adaptation}
+Few-shot learning aims to recognize novel target categories given only a tiny labeled support set $\mathcal{S}$~\cite{snell2017prototypical,vinyals2016matching,sung2018learning,tian2020rethinking}. In inductive few-shot learning, the model adapts parameters solely based on the support set $\mathcal{S}$ and evaluates query samples $\bm{x} \in \mathcal{Q}$ independently. Inductive baselines include Prototypical Networks (ProtoNet)~\cite{snell2017prototypical}, Linear Probing (LP++)~\cite{huang2024lpplusplus}, and training-free key-value cache adapters such as Tip-Adapter~\cite{zhang2022tipadapter}.
+
+In contrast, transductive few-shot learning processes the entire unlabeled query batch $\mathcal{Q}$ jointly at inference time~\cite{boudriki2020transductive,zanella2024boosting,li2026timplusplus,elkhoury2026lctim}. In remote sensing, transductive learning is particularly practical because satellite data is acquired in large geographic tiles comprising thousands of contiguous pixels or patches. Transductive Information Maximization (TIM++)~\cite{li2026timplusplus} maximizes the mutual information between query representations and predictions while penalizing divergence from zero-shot textual priors. Locally Consistent TIM (LC-TIM)~\cite{elkhoury2026lctim} augments TIM++ with a local consistency regularizer across a $k$-nearest-neighbor graph. However, LC-TIM enforces a static graph topology ($\kappa=5$) and constant regularizer weight ($\lambda_{\text{LC}}=0.3$), leading to severe label bleeding across complex hydrological boundaries.
+
+\subsection{Reinforcement Learning in Earth Observation}
+Reinforcement learning (RL) has emerged as a powerful paradigm for autonomous decision-making in remote sensing, including satellite constellation scheduling, agile Earth observation tasking, and autonomous UAV path planning~\cite{sutton2018reinforcement,schulman2017proximal,khan2022deep}. The policy gradient theorem states that the gradient of expected trajectory reward $J(\theta)$ is:
+\begin{equation}
+    \nabla_\theta J(\theta) = \mathbb{E}_{\pi_\theta} \left[ \nabla_\theta \log \pi_\theta(\mathbf{a} \mid \mathbf{s}) \, Q^{\pi_\theta}(\mathbf{s}, \mathbf{a}) \right].
+\end{equation}
+In vision-language processing, RLPrompt~\cite{sun2022rlprompt} employs policy gradients to optimize discrete textual prompts without backpropagation into the language model. Proximal Policy Optimization (PPO)~\cite{schulman2017proximal} provides stable policy gradient optimization with clipped surrogate objectives. Unlike prior works that apply RL to full model parameter fine-tuning, \rllctim{} employs RL as a lightweight, plug-and-play meta-controller for dynamic manifold graph construction and multi-source sensor gating.
+
+\subsection{Synthesis and Distinctions of the Proposed Approach}
+While previous literature has addressed either transductive adaptation or multi-modal fusion in isolation, \rllctim{} is the first framework to synthesize both mechanisms under an adaptive reinforcement-learned control policy. By treating the construction of the transductive manifold graph as a discrete Markov Decision Process, our approach eliminates heuristic hyperparameter tuning and guarantees mathematically bounded convergence over frozen foundation embeddings.

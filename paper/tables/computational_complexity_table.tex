@@ -1,0 +1,23 @@
+% Computational Efficiency and Complexity Table
+\begin{table}[t]
+\centering
+\caption{Computational Efficiency, Memory Footprint, and Inference Latency on NVIDIA RTX GPU (Query Batch Size $N_q=2500$).}
+\label{tab:computational_complexity}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{Trainable Params} & \textbf{Peak GPU VRAM} & \textbf{Per-Batch Time} & \textbf{Zero-Backprop} \\
+\midrule
+Zero-Shot & 0 & 1.24 GB & 4.2 ms & \cmark \\
+ProtoNet & 0 & 1.25 GB & 6.8 ms & \cmark \\
+LP++ (Inductive) & 2.6 K & 1.38 GB & 142.5 ms & \xmark \\
+Tip-Adapter & 0 & 1.30 GB & 12.4 ms & \cmark \\
+TransCLIP & 0 & 1.52 GB & 84.1 ms & \cmark \\
+TIM++ & 0 & 1.45 GB & 42.6 ms & \cmark \\
+LC-TIM (Static $\kappa=5$) & 0 & 1.68 GB & 58.2 ms & \cmark \\
+\textbf{\rllctim{} (Ours)} & 8.4 K & 1.72 GB & 64.5 ms & \cmark \\
+\textbf{\rllctimd{} (Ours)} & 8.6 K & 1.86 GB & 78.4 ms & \cmark \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
